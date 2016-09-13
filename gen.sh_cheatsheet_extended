@@ -1,0 +1,17 @@
+if (( `date +%s --date='today 0:0'`-`stat -c %Y /var/cache/eix/portage.eix` > 0 )); then sudo eix-sync; else echo "Last Sync was today! ("`stat -c %y /var/cache/eix/portage.eix`")"; exit 1; fi
+glsa-check -t all
+emerge -puND @world | genlop --pretend | less
+sudo emerge -auvDN --with-bdeps=y @world
+sudo emerge --resume -a
+sudo emaint -f cleanresume
+sudo emerge -a @preserved-rebuild
+eselect news read
+sudo dispatch-conf
+sudo emerge --ask --depclean
+sudo revdep-rebuild -v -- --ask
+eix-test-obsolete | less
+eclean-dist -d -p --time-limit=4w | less
+eclean-dist --i -d --time-limit=4w
+exit 1
+gen.sh q c kernel
+gen.sh q c main

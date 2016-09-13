@@ -1,0 +1,18 @@
+cp /usr/src/linux/.config ~/code/kernel-config-`uname -r`
+eselect kernel list
+sudo eselect kernel set 1
+sudo cp ~/code/kernel-config-`uname -r` /usr/src/linux/.config
+cd /usr/src/linux; sudo make silentoldconfig # sudo make oldconfig
+cd /usr/src/linux; sudo make menuconfig # sudo make xconfig
+cd /usr/src/linux; sudo make -j5
+cd /usr/src/linux; sudo make modules_install
+sudo mount /boot
+cd /usr/src/linux; sudo make install
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+sudo umount /boot
+cd /usr/src/linux; sudo make modules_prepare
+sudo emerge -a @module-rebuild
+sudo eclean-kernel -n 3
+exit 1
+gen.sh q c main
+gen.sh q c extended
