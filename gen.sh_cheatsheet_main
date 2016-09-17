@@ -1,13 +1,13 @@
 gen.sh q 2 3 d {4..14}; exit 0
 if (( `date +%s --date='today 0:0'`-`stat -c %Y /var/cache/eix/portage.eix` <= 0 )); then gen.sh q i "Last Sync was today!" "(`stat -c %y /var/cache/eix/portage.eix`)"; exit 1; fi
-sudo -v
-sudo eix-sync
-sudo layman -S
-cnt=$(genlop -l | wc -l); sudo emerge -auvDN --with-bdeps=y --color=y @world | tee >(waitforstring.py "Would you like to"; if [ 0 = $? ]; then gen.sh q i "User Interaction Needed!" >> /dev/null; fi; cat >> /dev/null); if (( $(genlop -l | wc -l) - $cnt == 0 )); then gen.sh q i "nothing was merged"; exit 1; fi
-sudo emerge -a @preserved-rebuild
-sudo dispatch-conf
-sudo emerge --ask --depclean
-sudo revdep-rebuild -v -- --ask
+sudo.sh -v
+sudo.sh eix-sync
+sudo.sh layman -S
+cnt=$(genlop -l | wc -l); sudo.sh emerge -auvDN --with-bdeps=y --color=y @world | tee >(waitforstring.py "Would you like to"; if [ 0 = $? ]; then gen.sh q i "User Interaction Needed!" >> /dev/null; fi; cat >> /dev/null); if (( $(genlop -l | wc -l) - $cnt == 0 )); then gen.sh q i "nothing was merged"; exit 1; fi
+sudo.sh emerge -a @preserved-rebuild
+sudo.sh dispatch-conf
+sudo.sh emerge --ask --depclean
+sudo.sh revdep-rebuild -v -- --ask
 glsa-check -t all
 eselect news read
 eix-test-obsolete.sh
