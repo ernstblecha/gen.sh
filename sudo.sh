@@ -7,8 +7,9 @@ if [ "$GET_VERSION" = "1" ]; then
 fi
 
 if [[ $# -eq 0 ]]; then
-  echo `basename $0`" [commands or sudo-options] - run a command with sudo and show a notification if a password is required"
-  echo "Version of "`basename $0`": $VERSION"
+  ME=`basename $0`
+  echo "$ME [commands or sudo-options] - run a command with sudo and show a notification if a password is required"
+  echo "Version of $ME: $VERSION"
   sudo -h
   exit 0
 fi;
