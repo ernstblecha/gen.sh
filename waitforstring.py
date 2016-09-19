@@ -1,6 +1,12 @@
 #!/usr/bin/python3 -u
 #using -u here to make stdin unbuffered
+
 import sys
+import os
+VERSION=1
+if os.environ.get("GET_VERSION") == "1":
+  print(VERSION)
+  sys.exit(0)
 
 l=0
 n=""
@@ -20,7 +26,6 @@ while l > 0: #"endless" loop if we have a needle
 
 #usage message if needle is missing
 import os.path
-print("Usage:")
 print(os.path.basename(sys.argv[0])+" needle")
 print("")
 print("blocks until the string passed in the first argument (\"needle\") is found on stdin or the stream ends")
@@ -31,5 +36,7 @@ print("returns 1 if string is not found")
 print("returns 2 if no string is given")
 print("")
 print("This message is shown if no string is given")
+print("")
+print("Version of "+os.path.basename(sys.argv[0])+": " + str(VERSION))
 
 sys.exit(2) #errorcode for missing needle

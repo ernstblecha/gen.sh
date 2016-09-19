@@ -5,6 +5,12 @@ DIR=`dirname "$SELF"`
 ME=`basename "$SELF"`
 SESSION_NAME=`echo $ME | sed 's/\./_/g'`
 MESSAGES=1
+VERSION=1
+
+if [ "$GET_VERSION" = "1" ]; then
+  echo $VERSION
+  exit 0
+fi
 
 function info {
   if [ $MESSAGES = 1 ]; then
@@ -14,7 +20,7 @@ function info {
 
 function help {
   cat <<HELPFILE
-$ME - interface to handle the recurring update commands needed with gentoo
+$ME V$VERSION - interface to handle the recurring update commands needed with gentoo
 
 Usecase 1: only outside a tmux session!
            call up a tmux-session showing a bash window and a "cheatsheet"
@@ -46,6 +52,9 @@ Usecase 6: show this help
            #> $ME -h
            #> $ME --help
            #> $ME "?"
+
+Usecase 7: show the version
+           #> $ME v
 
 Additional Command: produce no command info
            #> $ME q r
@@ -203,6 +212,15 @@ if (( "$#" )); then
   while (( "$#" )); do
     if [ "$1" = "q" ]; then
       MESSAGES=0
+    elif [ "$1" = "v" ]; then
+      if [ "$2" != "" ]; then
+        info "executing command $1: show version of $2"
+        echo `export GET_VERSION=1;$2`
+      else
+        info "executing command $1: show version of $SELF"
+        echo $VERSION
+      fi;
+      shift
     elif [ "$1" = "x" ]; then
       if [ $IS_ACTIVE_SESSION = 1 ]; then
         info "executing command $1: kill session"

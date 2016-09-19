@@ -1,5 +1,20 @@
 #!/bin/bash
 
+VERSION=1
+if [ "$GET_VERSION" = "1" -o "$1" = "v" ]; then
+  echo $VERSION
+  exit 0
+fi
+
+ME=`basename $0`
+if [ "$1" = "h" -o "$1" = "-h" -o "$1" = "--help" ]; then
+  cat <<EOF
+$ME - remove redundant information from the output of eix-test-obsolete
+Version of $ME: $VERSION
+EOF
+  exit 0
+fi;
+
 generateControlOutput () {
 cat <<EOF
 

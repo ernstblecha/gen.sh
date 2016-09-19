@@ -46,6 +46,10 @@ interface to handle the recurring update commands needed with gentoo
            #> gen.sh --help
            #> gen.sh "?"
 ```
+# Usecase 7: show version
+```
+           #> gen.sh v
+```
 
 # Additional Command: produce no command info
 ```
