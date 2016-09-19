@@ -165,7 +165,11 @@ RESUMELIST.PY
 
 function savetodo {
   if (( $# > 0 )); then
-    todo="g"
+    if [ "$MESSAGES" = "0" ]; then
+      todo="g q"
+    else
+      todo="g"
+    fi
     while (( $# > 0 )); do
       todo="$todo $1"
     shift
