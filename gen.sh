@@ -170,7 +170,6 @@ function savetodo {
       todo="$todo $1"
     shift
     done
-    # tmux send-keys -t "${SESSION_NAME}:0" "$todo" Enter
     if [ -e /proc/self/fd/3 ]; then
       echo $todo >&3
     fi;
@@ -264,7 +263,7 @@ if (( "$#" )); then
       tmp=$?
       if [ $tmp != 0 ]; then
         info "returncode was $tmp; aborting"
-		savetodo $@
+        savetodo $@
         quit $tmp
       fi
     elif [ "$1" == "e" ]; then
