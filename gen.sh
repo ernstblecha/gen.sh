@@ -186,22 +186,22 @@ function quit {
 }
 
 if [[ ! -f ${SELF}_cheatsheet ]]; then
-  info "Cheatsheet file missing (directory ${DIR}, named ${ME}_cheatsheet, one command per line)"; exit
+  info "Cheatsheet file missing (directory ${DIR}, named ${ME}_cheatsheet, one command per line)"; exit 1
 fi
 if ! hash python3 2>/dev/null; then
-  info "python3.x not available!"; exit
+  info "python3.x not available!"; exit 1
 fi
 if ! hash tmux 2>/dev/null; then
-  info "tmux not available!"; exit
+  info "tmux not available!"; exit 1
 fi
 if ! hash genlop 2>/dev/null; then
-  info "genlop not available!"; exit
+  info "genlop not available!"; exit 1
 fi
 if ! hash grep 2>/dev/null; then
-  info "grep not available!"; exit
+  info "grep not available!"; exit 1
 fi
 if ! hash sed 2>/dev/null; then
-  info "sed not available!"; exit
+  info "sed not available!"; exit 1
 fi
 
 IS_ACTIVE_SESSION=0
