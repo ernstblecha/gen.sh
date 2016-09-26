@@ -88,10 +88,8 @@ SYSTEMINFO.PY
 
 function eta {
 #you ask why? because genlop is way too slow...
-# this only needs 1/10 of the time of genlop (on my 3.6 MB logfile)
-#hacky: we only use the last 3 builds for our estimate
-#  why: if you CTRL+C an emerge the logfile is "broken" - starts and stops do not match. This is terrible to handle with grep (at least not using regex)...
-  ((grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep "$1-" | tail -n 6 | tee >(echo "start=`grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc`-0;") >(echo "stop=`grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc`-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
+# this only needs (approx) 1/10 of the time of genlop (on my 3.6 MB logfile)
+  ((grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep "$1-" | pcregrep -M ">>>.+\n.+ :::" | tee >(echo "start=`grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc`-0;") >(echo "stop=`grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc`-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
 function printEta {
@@ -199,6 +197,9 @@ if ! hash genlop 2>/dev/null; then
 fi
 if ! hash grep 2>/dev/null; then
   info "grep not available!"; exit 1
+fi
+if ! hash pcregrep 2>/dev/null; then
+  info "pcregrep not available!"; exit 1
 fi
 if ! hash sed 2>/dev/null; then
   info "sed not available!"; exit 1
