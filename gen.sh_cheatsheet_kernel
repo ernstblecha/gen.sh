@@ -2,8 +2,8 @@ cp /usr/src/linux/.config ~/code/kernel-config-`uname -r`
 eselect kernel list
 sudo eselect kernel set 1
 sudo cp ~/code/kernel-config-`uname -r` /usr/src/linux/.config
-cd /usr/src/linux; sudo make silentoldconfig # sudo make oldconfig
-cd /usr/src/linux; sudo make menuconfig # sudo make xconfig
+cd /usr/src/linux; sudo make silentoldconfig 
+cd /usr/src/linux; sudo make menuconfig 
 cd /usr/src/linux; sudo make -j5
 cd /usr/src/linux; sudo make modules_install
 sudo mount /boot
