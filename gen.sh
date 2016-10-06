@@ -244,8 +244,14 @@ if (( "$#" )); then
       less -N ${SELF}_cheatsheet
     elif [ "$1" = "r" ]; then
       info "executing command $1: show resumelist"
-      systeminfo
-      resumelist
+      if [ $IS_ACTIVE_SESSION = 1 ]; then
+        if (( 0 < "$(tmux list-clients -t ${SESSION_NAME} | wc -l)" )); then
+          systeminfo
+          resumelist
+        fi
+      else
+        resumelist
+      fi
     elif [ "$1" = "h" -o "$1" = "-h" -o "$1" = "--help" -o "$1" = "?" ]; then
       info "executing command $1: show help"
       help
