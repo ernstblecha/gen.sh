@@ -51,4 +51,8 @@ EOF
 
 diff <(generateControlOutput) <(eix-test-obsolete) | grep "^> ."
 
+if [[ ${PIPESTATUS[0]} == 0 ]]; then
+  echo "No useless entries in config files found."
+fi
+
 exit 0
