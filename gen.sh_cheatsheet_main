@@ -4,7 +4,7 @@ sudo.sh -v
 sudo.sh eix-sync
 sudo.sh layman -S
 cnt=$(genlop -l | wc -l); sudo.sh emerge -auvDN --with-bdeps=y --color=y --quiet-build=y @world | tee >(waitforstring.py "Would you like to"; if [ 0 = $? ]; then gen.sh q i "User Interaction Needed!" >> /dev/null; fi; cat >> /dev/null); if (( $(genlop -l | wc -l) - $cnt == 0 )); then gen.sh q i "nothing was merged"; exit 1; fi
-sudo.sh emerge -a @preserved-rebuild
+sudo.sh emerge -a --quiet-build=y @preserved-rebuild
 sudo.sh dispatch-conf
 sudo.sh emerge --ask --depclean
 sudo.sh revdep-rebuild -v -- --ask
