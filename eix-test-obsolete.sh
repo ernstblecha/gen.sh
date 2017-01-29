@@ -49,7 +49,7 @@ All installed versions of packages are in the database.
 EOF
 }
 
-diff <(generateControlOutput) <(eix-test-obsolete) | grep "^> ."
+diff <(generateControlOutput) <(LC_ALL=C eix-test-obsolete) | grep "^> ."
 
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
   echo "No useless entries in config files found."
