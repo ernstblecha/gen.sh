@@ -49,10 +49,34 @@ All installed versions of packages are in the database.
 EOF
 }
 
+check () {
 diff <(generateControlOutput) <(LC_ALL=C eix-test-obsolete) | grep "^> ."
 
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
-  echo "No useless entries in config files found."
+  printf "No useless entries in config files found.\n"
 fi
+}
+
+spinner() {
+# as seen on http://fitnr.com/showing-a-bash-spinner.html
+    local pid=$1
+    local delay=0.75
+    local spinstr='|/-\'
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
+}
+
+coproc checkfd { check; }
+exec 3>&${checkfd[0]}
+spinner $!
+read -r -d '' -u 3 check_output
+
+echo "$check_output"
 
 exit 0
