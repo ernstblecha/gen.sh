@@ -1,4 +1,3 @@
-cp /usr/src/linux/.config ~/code/kernel-config-`uname -r`
 eselect kernel list
 sudo eselect kernel set 1
 sudo cp ~/code/kernel-config-`uname -r` /usr/src/linux/.config
@@ -10,6 +9,7 @@ sudo mount /boot
 cd /usr/src/linux; sudo make install
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 sudo umount /boot
+cp /usr/src/linux/.config ~/code/kernel-config-`cat /usr/src/linux/include/generated/utsrelease.h | sed -e 's/#define UTS_RELEASE "\(.*\)"/\1/'`
 cd /usr/src/linux; sudo make modules_prepare
 sudo emerge -a @module-rebuild
 sudo eclean-kernel -n 3 -A -d
