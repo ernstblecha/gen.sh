@@ -66,7 +66,7 @@ check () {
 diff <(generateControlOutput) <(LC_ALL=C eix-test-obsolete) | grep "^> ."
 
 if [[ ${PIPESTATUS[0]} == 0 ]]; then
-  printf "No useless entries in config files found.\n"
+  printf "No non up-to-date entries in config files found.\n"
 fi
 }
 
