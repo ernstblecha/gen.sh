@@ -1,6 +1,6 @@
 emerge -puND @world | genlop --pretend | less
-sudo emerge --resume -a
-sudo emaint -f cleanresume
+gmerge --resume
+sudo.sh emaint -f cleanresume
 eclean-dist -d -p --time-limit=4w | less
 eclean-dist --i -d --time-limit=4w
 exit 1
