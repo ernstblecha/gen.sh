@@ -95,8 +95,10 @@ function systeminfo {
   python3 <<SYSTEMINFO.PY
 import psutil
 import time
-
-mem=psutil.phymem_usage()
+try:
+  mem=psutil.virtual_memory()
+except:
+  mem=psutil.phymem_usage()
 print("% 5.1f MB (% 5.1f%%)\t [%s]\t%s" % ((mem.used/1024/1024), mem.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))
 SYSTEMINFO.PY
 }
