@@ -1,16 +1,16 @@
 eselect kernel list
 sudo.sh eselect kernel set 1
-sudo.sh cp ~/code/kernel-config-`uname -r` /usr/src/linux/.config
-cd /usr/src/linux; sudo.sh make silentoldconfig 
-cd /usr/src/linux; sudo.sh make menuconfig 
-cd /usr/src/linux; sudo.sh make -j5
-cd /usr/src/linux; sudo.sh make modules_install
+sudo.sh cp "$HOME/code/kernel-config-$(uname -r)" /usr/src/linux/.config
+cd /usr/src/linux && sudo.sh make silentoldconfig 
+cd /usr/src/linux && sudo.sh make menuconfig 
+cd /usr/src/linux && sudo.sh make -j5
+cd /usr/src/linux && sudo.sh make modules_install
 sudo.sh mount /boot
-cd /usr/src/linux; sudo.sh make install
+cd /usr/src/linux && sudo.sh make install
 sudo.sh grub-mkconfig -o /boot/grub/grub.cfg
 sudo.sh umount /boot
-cp /usr/src/linux/.config ~/code/kernel-config-`cat /usr/src/linux/include/generated/utsrelease.h | sed -e 's/#define UTS_RELEASE "\(.*\)"/\1/'`
-cd /usr/src/linux; sudo.sh make modules_prepare
+cp /usr/src/linux/.config "$HOME/code/kernel-config-$(sed -e 's/#define UTS_RELEASE "\(.*\)"/\1/' < /usr/src/linux/include/generated/utsrelease.h)"
+cd /usr/src/linux && sudo.sh make modules_prepare
 gmerge @module-rebuild
 sudo.sh eclean-kernel -n 3 -A -d
 exit 1

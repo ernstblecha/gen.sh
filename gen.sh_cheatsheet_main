@@ -1,8 +1,8 @@
 gen.sh q 2 3 d {4..13}; exit 0
-if (( `date +%s --date='today 0:0'`-`stat -c %Y /var/cache/eix/portage.eix` <= 0 )); then gen.sh q i "Last Sync was today!" "(`stat -c %y /var/cache/eix/portage.eix`)"; exit 1; fi
+if (( $(date +%s --date='today 0:0')-$(stat -c %Y /var/cache/eix/portage.eix) <= 0 )); then gen.sh q i "Last Sync was today!" "($(stat -c %y /var/cache/eix/portage.eix))"; exit 1; fi
 sudo.sh -v
 sudo.sh eix-sync
-cnt=$(genlop -l | wc -l); gmerge -uvDN --with-bdeps=y @world; if (( $(genlop -l | wc -l) - $cnt == 0 )); then gen.sh q i "nothing was merged"; exit 1; fi
+cnt=$(genlop -l | wc -l); gmerge -uvDN --with-bdeps=y @world; if (( $(genlop -l | wc -l) - cnt == 0 )); then gen.sh q i "nothing was merged"; exit 1; fi
 gmerge @preserved-rebuild
 sudo.sh dispatch-conf
 gmerge --depclean
