@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with gen.sh.  If not, see <http://www.gnu.org/licenses/>.
 
-SELF=`realpath "$0"`
-DIR=`dirname "$SELF"`
-ME=`basename "$SELF"`
-SESSION_NAME=`echo $ME | sed 's/\./_/g'`
+SELF=$(realpath "$0")
+DIR=$(dirname "$SELF")
+ME=$(basename "$SELF")
+SESSION_NAME=${ME//./_}
 MESSAGES=1
-VERSION=1
+VERSION=2
 
 if [ "$GET_VERSION" = "1" ]; then
   echo $VERSION
@@ -29,7 +29,7 @@ fi
 
 function info {
   if [ $MESSAGES = 1 ]; then
-    echo $1
+    echo "$1"
   fi
 }
 
@@ -106,37 +106,41 @@ SYSTEMINFO.PY
 function eta {
 #you ask why? because genlop is way too slow...
 # this only needs (approx) 1/10 of the time of genlop (on my 3.6 MB logfile)
-  ((grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$1-[0-9]" | pcregrep -M ">>>.+\n.+ :::" | tee >(echo "start=`grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc`-0;") >(echo "stop=`grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc`-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
+# yes, i am sure i want to pipe into echo, the grep afterwards will eat the data
+# shellcheck disable=SC2008
+  ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$1-[0-9]" | pcregrep -M ">>>.+\n.+ :::" | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
 function printEta {
   local r;
   local t;
   local name;
-  name=`echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/'`
-  r=$((`eta $name`+29))
-  t=$(($r/60))
-  if (( $r < 0 )); then
+  # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
+  # shellcheck disable=SC2001
+  name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
+  r=$(($(eta "$name")+29))
+  t=$((r/60))
+  if (( r < 0 )); then
     echo "currently merging";
-  elif (( $r == 0 )); then
+  elif (( r == 0 )); then
     echo "unknown";
-  elif (( $t <= 1 )); then
+  elif (( t <= 1 )); then
     echo "<= 1 minute";
-  elif (( $t < 2 )); then
+  elif (( t < 2 )); then
     echo "1 minute";
-  elif (( $t < 60)); then
+  elif (( t < 60)); then
     echo "$((t)) minutes";
-  elif (( $t < 120 )); then
-    if (( $((($t)%60)) == 1 )); then
+  elif (( t < 120 )); then
+    if (( $(((t)%60)) == 1 )); then
       echo "1 hour, 1 minute";
     else
-      echo "1 hour, $(($t%60)) minutes";
+      echo "1 hour, $((t%60)) minutes";
     fi;
   else
-    if (( $(($t%60)) == 1 )); then
-      echo "$(($t/60)) hours, 1 minute";
+    if (( $((t%60)) == 1 )); then
+      echo "$((t/60)) hours, 1 minute";
     else
-      echo "$(($t/60)) hours, $(($t%60)) minutes";
+      echo "$((t/60)) hours, $((t%60)) minutes";
     fi;
   fi;
 }
@@ -190,14 +194,14 @@ function savetodo {
     shift
     done
     if [ -e /proc/self/fd/3 ]; then
-      echo $todo >&3
+      echo "$todo" >&3
     fi;
   fi;
 }
 
 function quit {
   sudo -k
-  exit $1
+  exit "$1"
 }
 
 if [[ ! -f ${SELF}_cheatsheet ]]; then
@@ -224,7 +228,7 @@ fi
 
 IS_ACTIVE_SESSION=0
 if [ ! -z "$TMUX" ]; then
-  if [[ `tmux display-message -p '#S'` == "$SESSION_NAME" ]]; then
+  if [[ $(tmux display-message -p '#S') == "$SESSION_NAME" ]]; then
     IS_ACTIVE_SESSION=1;
   fi
 fi
@@ -236,7 +240,7 @@ if (( "$#" )); then
     elif [ "$1" = "v" ]; then
       if [ "$2" != "" ]; then
         info "executing command $1: show version of $2"
-        echo `export GET_VERSION=1;$2`
+        echo "$(export GET_VERSION=1;$2)"
       else
         info "executing command $1: show version of $SELF"
         echo $VERSION
@@ -258,18 +262,18 @@ if (( "$#" )); then
       fi
     elif [ "$1" = "l" ]; then
       info "executing command $1: show cheatsheet"
-      less -N ${SELF}_cheatsheet
+      less -N "${SELF}_cheatsheet"
     elif [ "$1" = "r" ]; then
       info "executing command $1: show resumelist"
       if [ $IS_ACTIVE_SESSION = 1 ]; then
-        if (( 0 < "$(tmux list-clients -t ${SESSION_NAME} | wc -l)" )); then
+        if (( 0 < "$(tmux list-clients -t "${SESSION_NAME}" | wc -l)" )); then
           systeminfo
           resumelist
         fi
       else
         resumelist
       fi
-    elif [ "$1" = "h" -o "$1" = "-h" -o "$1" = "--help" -o "$1" = "?" ]; then
+    elif [ "$1" = "h" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ "$1" = "?" ]; then
       info "executing command $1: show help"
       help
     elif [ "$1" = "s" ]; then
@@ -277,30 +281,30 @@ if (( "$#" )); then
       systeminfo
     elif [ "$1" = "w" ]; then
       info "execution command $1: wait for continue"
-      read -n 1 -p "[c]ontinue/[b]reak? " tmp;
+      read -r -n 1 -p "[c]ontinue/[b]reak? " tmp;
       echo;
       if [ "$tmp" != "c" ]; then
         info "stopped by user!"
-        savetodo $@
+        savetodo "$@"
         quit 1
       fi;
-    elif (( "$1" > 0 && "$1" <= "$(wc -l <${SELF}_cheatsheet)" )); then
-      COMM=$(sed -n ${1}p ${SELF}_cheatsheet)
+    elif (( "$1" > 0 && "$1" <= $(wc -l <"${SELF}_cheatsheet") )); then
+      COMM=$(sed -n "${1}p" "${SELF}_cheatsheet")
       info "executing command #$1: $COMM"
       /bin/bash -c "$COMM"
       tmp=$?
       if [ $tmp != 0 ]; then
         info "returncode was $tmp; aborting"
-        savetodo $@
+        savetodo "$@"
         quit $tmp
       fi
     elif [ "$1" == "e" ]; then
       info "executing command $1: estimate build time for $2"
-      printEta $2
+      printEta "$2"
       shift
     elif [ "$1" == "c" ]; then
       info "executing command $1: change cheatsheet to $2"
-      if [ "$2" != "" -a -e "$DIR/gen.sh_cheatsheet_$2" ]; then
+      if [ "$2" != "" ] &&  [ -e "$DIR/gen.sh_cheatsheet_$2" ]; then
         ln -s -f "./gen.sh_cheatsheet_$2" "$DIR/gen.sh_cheatsheet"
       else
         info "given cheatsheet does not exist"
@@ -308,7 +312,7 @@ if (( "$#" )); then
       shift
     elif [ "$1" == "i" ]; then
       info "executing command $1: show message"
-      echo $2 $3
+      echo "$2 $3"
       notify-send "$2" "$3"
       shift 2
     else
@@ -320,13 +324,12 @@ if (( "$#" )); then
   quit 0
 else
   if [ -z "$TMUX" ]; then
-    tmux has-session -t ${SESSION_NAME}
-    if [ $? != 0 ]; then
-      tmux new-session -d -s ${SESSION_NAME} "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { gen.sh x; }; function x { gen.sh x; }; function d() { gen.sh q d; }; function g() { tmpfile=\\\`mktemp\\\`; exec 3>\\\$tmpfile; ${SELF} \\\${@}; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\`cat \\\$tmpfile\\\`; rm \\\$tmpfile; exec 3>&-; return \\\$tmp; };\")";
+    if tmux has-session -t "${SESSION_NAME}"; then
+      tmux new-session -d -s "${SESSION_NAME}" "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { gen.sh x; }; function x { gen.sh x; }; function d() { gen.sh q d; }; function g() { tmpfile=\\\`mktemp\\\`; exec 3>\\\$tmpfile; ${SELF} \\\${@}; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\`cat \\\$tmpfile\\\`; rm \\\$tmpfile; exec 3>&-; return \\\$tmp; };\")";
       tmux split-window -v -l 20 -t "${SESSION_NAME}" "watch -t $SELF q r"
       tmux select-pane -t 0
     fi
-    tmux attach -t ${SESSION_NAME}
+    tmux attach -t "${SESSION_NAME}"
   else
     if [ $IS_ACTIVE_SESSION ]; then
       info "already in a tmux session started from $ME"
