@@ -95,11 +95,11 @@ function systeminfo {
   python3 <<SYSTEMINFO.PY
 import psutil
 import time
-try:
-  mem=psutil.virtual_memory()
-except:
-  mem=psutil.phymem_usage()
-print("% 5.1f MB (% 5.1f%%)\t [%s]\t%s" % ((mem.used/1024/1024), mem.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))
+if hasattr(psutil, 'virtual_memory'):
+    mem = psutil.virtual_memory()
+else:
+    mem = psutil.phymem_usage()
+print("% 5.1f MB (% 5.1f%%)\t [%s]\t%s" % ((mem.used/1024/1024), mem.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))  # noqa: E501
 SYSTEMINFO.PY
 }
 
@@ -151,34 +151,33 @@ import portage
 import subprocess
 import shutil
 
-data=portage.mtimedb.get("resume", {}).get("mergelist")
+data = portage.mtimedb.get("resume", {}).get("mergelist")
 
-counter=1
+counter = 1
 if data is not None:
-  print(subprocess.getoutput("genlop -unc"))
-  print('\nItems in resume list:')
-  for item in data:
-#    eta = subprocess.getoutput("echo [e] %s | genlop --pretend -n | grep --color=never \"Estimated update time:\" | sed \"s/Estimated update time: //g\"" % item[2])[:-1]; #hacky but does the job for now :(
-    eta = subprocess.getoutput("${SELF} q e %s" % item[2]);
-    buf = item[2]
-    size = shutil.get_terminal_size((80,20))
-    if len(buf) > size.columns-25-8:
-      buf = buf[:size.columns-25-8-3] + "..."
-    print('% 5d.) %s %s%s' % (counter, buf, ' '*(size.columns-25-8-len(buf)), eta))
-    counter += 1
-    if counter > size.lines:
-      break
+    print(subprocess.getoutput("genlop -unc"))
+    print('\nItems in resume list:')
+    for item in data:
+        eta = subprocess.getoutput("${SELF} q e %s" % item[2])
+        buf = item[2]
+        size = shutil.get_terminal_size((80, 20))
+        if len(buf) > size.columns - 25 - 8:
+            buf = buf[:size.columns - 25 - 8 - 3] + "..."
+        print('% 5d.) %s %s%s' % (counter, buf, ' '*(size.columns - 25 - 8 - len(buf)), eta))  # noqa: E501
+        counter += 1
+        if counter > size.lines:
+            break
 else:
-  print('No items in resume list, showing cheatsheet')
-  size = shutil.get_terminal_size((80,20))
-  with open('${SELF}_cheatsheet') as f:
-    for line in f:
-      buf = '% 5d> %s' % (counter, line.rstrip())
-      if len(buf) > size.columns:
-        print('%s...' % buf[:size.columns-3])
-      else:
-        print(buf)
-      counter += 1
+    print('No items in resume list, showing cheatsheet')
+    size = shutil.get_terminal_size((80, 20))
+    with open('${SELF}_cheatsheet') as f:
+        for line in f:
+            buf = '% 5d> %s' % (counter, line.rstrip())
+            if len(buf) > size.columns:
+                print('%s...' % buf[:size.columns-3])
+            else:
+                print(buf)
+            counter += 1
 RESUMELIST.PY
 }
 
