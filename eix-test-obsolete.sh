@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with gen.sh.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION=1
-if [ "$GET_VERSION" = "1" -o "$1" = "v" ]; then
+VERSION=2
+if [ "$GET_VERSION" = "1" ] || [ "$1" = "v" ]; then
   echo $VERSION
   exit 0
 fi
 
-ME=`basename $0`
-if [ "$1" = "h" -o "$1" = "-h" -o "$1" = "--help" ]; then
+ME=$(basename "$0")
+if [ "$1" = "h" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   cat <<EOF
 $ME - remove redundant information from the output of eix-test-obsolete
 Version of $ME: $VERSION
@@ -74,8 +74,8 @@ spinner() {
 # as seen on http://fitnr.com/showing-a-bash-spinner.html
     local pid=$1
     local delay=0.75
-    local spinstr='|/-\'
-    while kill -0 -- $pid 2>/dev/null; do
+    local spinstr="|/-\\"
+    while kill -0 -- "$pid" 2>/dev/null; do
         local temp=${spinstr#?}
         printf " [%c]  " "$spinstr"
         local spinstr=$temp${spinstr%"$temp"}
@@ -86,7 +86,7 @@ spinner() {
 }
 
 coproc checkfd { check; }
-exec 3>&${checkfd[0]}
+exec 3>&"${checkfd[0]}"
 spinner $!
 read -r -d '' -u 3 check_output
 
