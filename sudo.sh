@@ -30,7 +30,7 @@ if [[ $# -eq 0 ]]; then
 fi;
 
 
-if sudo -n echo -n 2> /dev/null; then
+if ! sudo -n echo -n 2> /dev/null; then
   gen.sh q i "User Interaction Needed (sudo)"
 fi
 sudo "$@"
