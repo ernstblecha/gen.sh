@@ -1,2 +1,9 @@
 #!/bin/bash
+
+VERSION=1
+if [ "$GET_VERSION" = "1" ] || [ "$1" = "v" ]; then
+  echo $VERSION
+  exit 0
+fi
+
 sudo.sh emerge --ask --quiet-build=y --color=y $@ | tee >(waitforstring.py "Would you like to"; if [ 0 = $? ]; then gen.sh q i "User Interaction Needed!" >> /dev/null; fi; cat >> /dev/null);
