@@ -42,7 +42,7 @@ while w > 0:  # "endless" loop if we have a needle
 # usage message if needle is missing
 print(os.path.basename(sys.argv[0])+" needle")
 print("")
-print("blocks until the string passed in the first argument (\"needle\") is found on stdin or the stream ends")
+print("blocks until the string passed in the first argument (\"needle\") is found on stdin or the stream ends")  # noqa: E501
 print("additional parameters are ignored")
 print("")
 print("returns 0 if string is found")
