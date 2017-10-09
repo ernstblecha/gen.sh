@@ -40,17 +40,17 @@ while w > 0:  # "endless" loop if we have a needle
         sys.exit(0)  # needle was found
 
 # usage message if needle is missing
-print(os.path.basename(sys.argv[0])+" needle")
-print("")
-print("blocks until the string passed in the first argument (\"needle\") is found on stdin or the stream ends")  # noqa: E501
-print("additional parameters are ignored")
-print("")
-print("returns 0 if string is found")
-print("returns 1 if string is not found")
-print("returns 2 if no string is given")
-print("")
-print("This message is shown if no string is given")
-print("")
-print("Version of "+os.path.basename(sys.argv[0])+": " + str(VERSION))
+print(os.path.basename(sys.argv[0])+""" needle
+
+blocks until the string passed in the first argument (\"needle\") is found on
+stdin or the stream ends additional parameters are ignored
+
+returns 0 if string is found
+returns 1 if string is not found
+returns 2 if no string is given
+
+This message is shown if no string is given
+
+Version of """+os.path.basename(sys.argv[0])+": " + str(VERSION))
 
 sys.exit(2)  # errorcode for missing needle
