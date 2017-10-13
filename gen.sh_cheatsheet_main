@@ -8,7 +8,7 @@ sudo.sh dispatch-conf
 gmerge --depclean
 sudo.sh revdep-rebuild -v -- --ask
 glsa-check -t all
-eselect news read
+if (( $(eselect news list | grep " N " | wc -l) )); then gen.sh i "User Interaction needed: news to be read!"; eselect news read | LESS='' less; fi
 eix-test-obsolete.sh
 gen.sh q i "all done"
 exit 1
