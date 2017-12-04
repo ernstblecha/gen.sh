@@ -150,6 +150,7 @@ function resumelist {
 import portage
 import subprocess
 import shutil
+import os
 
 data = portage.mtimedb.get("resume", {}).get("mergelist")
 
@@ -165,8 +166,9 @@ if data is not None:
             buf = buf[:size.columns - 25 - 8 - 3] + "..."
         print('% 5d.) %s %s%s' % (counter, buf, ' '*(size.columns - 25 - 8 - len(buf)), eta))  # noqa: E501
         counter += 1
-        if counter > size.lines:
-            break
+        if not "LINES_UNLIMITED" in os.environ:
+            if counter > size.lines:
+                break
 else:
     print('No items in resume list, showing cheatsheet')
     size = shutil.get_terminal_size((80, 20))
