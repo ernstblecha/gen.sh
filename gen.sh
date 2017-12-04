@@ -158,7 +158,7 @@ counter = 1
 if data is not None:
     genlop=subprocess.getoutput("genlop -unc")
     print(genlop)
-    counter += genlop.count('\n') + 2
+    genlopsize = genlop.count('\n') + 2 + 2
     print('\nItems in resume list:')
     for item in data:
         eta = subprocess.getoutput("${SELF} q e %s" % item[2])
@@ -169,7 +169,7 @@ if data is not None:
         print('% 5d.) %s %s%s' % (counter, buf, ' '*(size.columns - 25 - 8 - len(buf)), eta))  # noqa: E501
         counter += 1
         if not "LINES_UNLIMITED" in os.environ:
-            if counter > size.lines:
+            if counter + genlopsize > size.lines:
                 break
 else:
     print('No items in resume list, showing cheatsheet')
