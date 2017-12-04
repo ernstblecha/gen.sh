@@ -156,7 +156,9 @@ data = portage.mtimedb.get("resume", {}).get("mergelist")
 
 counter = 1
 if data is not None:
-    print(subprocess.getoutput("genlop -unc"))
+    genlop=subprocess.getoutput("genlop -unc")
+    print(genlop)
+    counter += genlop.count('\n') + 2
     print('\nItems in resume list:')
     for item in data:
         eta = subprocess.getoutput("${SELF} q e %s" % item[2])
