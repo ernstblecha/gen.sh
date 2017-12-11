@@ -74,6 +74,9 @@ Usecase 7: show the version
 Additional Command: produce no command info
            #> $ME q r
 
+Additional Command: reactivate command info
+           #> $ME vv r
+
 Additional Command: show the systeminfo
            #> $ME s
 
@@ -240,6 +243,8 @@ if (( "$#" )); then
   while (( "$#" )); do
     if [ "$1" = "q" ]; then
       MESSAGES=0
+    elif [ "$1" == "vv" ]; then
+      MESSAGES=1
     elif [ "$1" = "v" ]; then
       if [ "$2" != "" ]; then
         info "executing command $1: show version of $2"
