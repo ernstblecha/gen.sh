@@ -61,6 +61,7 @@ Usecase 4: show the content of the cheatsheet with less
 
 Usecase 5: show current resumelist (cheatsheet if resumelist is empty)
            #> $ME r
+           #> LINES_UNLIMITED=1 $ME r
 
 Usecase 6: show this help
            #> $ME h
