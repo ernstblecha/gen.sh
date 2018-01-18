@@ -1,4 +1,4 @@
-gen.sh q 2 3 d {4..13}; exit 0
+gen.sh q {2..13}; exit 0
 if (( $(date +%s --date='today 0:0')-$(stat -c %Y /var/cache/eix/portage.eix) <= 0 )); then gen.sh q i "Last Sync was today!" "($(stat -c %y /var/cache/eix/portage.eix))"; exit 1; fi
 sudo.sh -v
 sudo.sh eix-sync
