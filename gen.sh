@@ -335,7 +335,7 @@ else
   if [ -z "$TMUX" ]; then
     if ! tmux has-session -t "${SESSION_NAME}"; then
       tmux new-session -d -s "${SESSION_NAME}" "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { gen.sh x; }; function x { gen.sh x; }; function d() { gen.sh q d; }; function g() { tmpfile=\\\"\\\$(mktemp)\\\"; exec 3>\\\"\\\$tmpfile\\\"; \\\"${SELF}\\\" \\\"\\\${@}\\\"; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\$(cat \\\"\\\$tmpfile\\\"); rm \\\"\\\$tmpfile\\\"; exec 3>&-; return \\\$tmp; };\")";
-      tmux split-window -v -l 20 -t "${SESSION_NAME}" "watch -t \"$SELF\" q r"
+      tmux split-window -v -l 13 -t "${SESSION_NAME}" "watch -t \"$SELF\" q r"
       tmux select-pane -t 0
     fi
     tmux attach -t "${SESSION_NAME}"
