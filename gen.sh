@@ -316,8 +316,8 @@ if (( "$#" )); then
       shift
     elif [ "$1" == "c" ]; then
       info "executing command $1: change cheatsheet to $2"
-      if [ "$2" != "" ] &&  [ -e "$DIR/gen.sh_cheatsheet_$2" ]; then
-        ln -s -f "./gen.sh_cheatsheet_$2" "$DIR/gen.sh_cheatsheet"
+      if [ "$2" != "" ] &&  [ -e "${SELF}_cheatsheet_$2" ]; then
+        ln -s -f "./${ME}_cheatsheet_$2" "${SELF}_cheatsheet"
       else
         info "given cheatsheet does not exist"
       fi
@@ -337,7 +337,7 @@ if (( "$#" )); then
 else
   if [ -z "$TMUX" ]; then
     if ! tmux has-session -t "${SESSION_NAME}"; then
-      tmux new-session -d -s "${SESSION_NAME}" "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { gen.sh x; }; function x { gen.sh x; }; function d() { gen.sh q d; }; function g() { tmpfile=\\\"\\\$(mktemp)\\\"; exec 3>\\\"\\\$tmpfile\\\"; \\\"${SELF}\\\" \\\"\\\${@}\\\"; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\$(cat \\\"\\\$tmpfile\\\"); rm \\\"\\\$tmpfile\\\"; exec 3>&-; return \\\$tmp; };\")";
+      tmux new-session -d -s "${SESSION_NAME}" "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { $SELF x; }; function x { $SELF x; }; function d() { $SELF q d; }; function g() { tmpfile=\\\"\\\$(mktemp)\\\"; exec 3>\\\"\\\$tmpfile\\\"; \\\"${SELF}\\\" \\\"\\\${@}\\\"; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\$(cat \\\"\\\$tmpfile\\\"); rm \\\"\\\$tmpfile\\\"; exec 3>&-; return \\\$tmp; };\")";
       tmux split-window -v -l 13 -t "${SESSION_NAME}" "watch -t \"$SELF\" q r"
       tmux select-pane -t 0
     fi
