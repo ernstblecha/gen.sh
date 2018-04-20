@@ -232,6 +232,9 @@ fi
 if ! hash sed 2>/dev/null; then
   info "sed not available!"; exit 1
 fi
+if ! hash notify-send.sh 2>/dev/null; then
+  info "notify-send.sh not available! https://github.com/vlevit/notify-send.sh"; exit 1
+fi
 
 IS_ACTIVE_SESSION=0
 if [ ! -z "$TMUX" ]; then
@@ -322,7 +325,7 @@ if (( "$#" )); then
     elif [ "$1" == "i" ]; then
       info "executing command $1: show message"
       echo "$2 $3"
-      notify-send "$2" "$3"
+      notify-send.sh --action=${ME}:"gnome-terminal --geometry=112x40 --hide-menubar -e ${SELF}" -R "/tmp/${ME}.sh.msg" "$2" "$3"
       shift 2
     else
       info "unknown command $1"
