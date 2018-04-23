@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -i
 
 # This file is part of gen.sh.
 #
