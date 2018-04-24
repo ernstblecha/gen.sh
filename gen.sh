@@ -325,7 +325,7 @@ if (( "$#" )); then
     elif [ "$1" == "i" ]; then
       info "executing command $1: show message"
       echo "$2 $3"
-      notify-send.sh --action=${ME}:"gnome-terminal --geometry=112x40 --hide-menubar -- ${SELF}" -R "/tmp/${ME}.sh.msg" "$2" "$3"
+      notify-send.sh -R "/tmp/${ME}.sh.msg" "$2" "$3"
       shift 2
     else
       info "unknown command $1"
