@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 
 # This file is part of gen.sh.
 #
@@ -236,7 +236,7 @@ if ! hash notify-send.sh 2>/dev/null; then
   info "notify-send.sh not available! https://github.com/vlevit/notify-send.sh"; exit 1
 fi
 
-IS_ACTIVE_SESSION=0
+IS_ACTIVE_SESSION=0;
 if [ ! -z "$TMUX" ]; then
   if [[ $(tmux display-message -p '#S') == "$SESSION_NAME" ]]; then
     IS_ACTIVE_SESSION=1;
@@ -335,7 +335,7 @@ if (( "$#" )); then
   done
   quit 0
 else
-  if [ -z "$TMUX" ]; then
+  if [ $IS_ACTIVE_SESSION == 0 ]; then
     if ! tmux has-session -t "${SESSION_NAME}"; then
       tmux new-session -d -s "${SESSION_NAME}" "/bin/bash --init-file <(echo \"source ~/.bashrc; function exit { $SELF x; }; function x { $SELF x; }; function d() { $SELF q d; }; function g() { tmpfile=\\\"\\\$(mktemp)\\\"; exec 3>\\\"\\\$tmpfile\\\"; \\\"${SELF}\\\" \\\"\\\${@}\\\"; tmp=\\\$?; history -s \\\"g \\\${@}\\\";  history -s \\\$(cat \\\"\\\$tmpfile\\\"); rm \\\"\\\$tmpfile\\\"; exec 3>&-; return \\\$tmp; };\")";
       tmux split-window -v -l 13 -t "${SESSION_NAME}" "watch -t \"$SELF\" q r"
@@ -343,10 +343,6 @@ else
     fi
     tmux attach -t "${SESSION_NAME}"
   else
-    if [ $IS_ACTIVE_SESSION ]; then
-      info "already in a tmux session started from $ME"
-    else
-      info "already in a tmux session (manually started)"
-    fi
+    info "already in a tmux session started from $ME"
   fi
 fi
