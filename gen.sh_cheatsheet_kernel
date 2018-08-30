@@ -1,7 +1,7 @@
 eselect kernel list
 sudo.sh eselect kernel set 1
 sudo.sh cp "$HOME/code/kernel/kernel-config-$(uname -r)" /usr/src/linux/.config
-cd /usr/src/linux && sudo.sh make silentoldconfig 
+cd /usr/src/linux && sudo.sh make syncconfig 
 cd /usr/src/linux && sudo.sh make menuconfig 
 cd /usr/src/linux && sudo.sh make -j5
 cd /usr/src/linux && sudo.sh make modules_install
