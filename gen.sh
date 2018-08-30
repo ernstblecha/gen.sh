@@ -103,7 +103,7 @@ if hasattr(psutil, 'virtual_memory'):
     mem = psutil.virtual_memory()
 else:
     mem = psutil.phymem_usage()
-print("% 5.1f MB (% 5.1f%%)\t [%s]\t%s" % ((mem.used/1024/1024), mem.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))  # noqa: E501
+print("% 5.1f MB (% 5.1f%%)\\t [%s]\\t%s" % ((mem.used/1024/1024), mem.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))  # noqa: E501
 SYSTEMINFO.PY
 }
 
@@ -112,7 +112,7 @@ function eta {
 # this only needs (approx) 1/10 of the time of genlop (on my 3.6 MB logfile)
 # yes, i am sure i want to pipe into echo, the grep afterwards will eat the data
 # shellcheck disable=SC2008
-  ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$1-[0-9]" | pcregrep -M ">>>.+\n.+ :::" | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
+  ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$1-[0-9]" | pcregrep -M ">>>.+\\n.+ :::" | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
 function printEta {
@@ -162,8 +162,8 @@ counter = 1
 if data is not None:
     genlop=subprocess.getoutput("genlop -unc")
     print(genlop)
-    genlopsize = genlop.count('\n') + 2 + 2
-    print('\nItems in resume list:')
+    genlopsize = genlop.count('\\n') + 2 + 2
+    print('\\nItems in resume list:')
     for item in data:
         eta = subprocess.getoutput("${SELF} q e %s" % item[2])
         buf = item[2]
