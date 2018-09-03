@@ -22,3 +22,4 @@ if [ "$GET_VERSION" = "1" ]; then
 fi
 
 sudo.sh emerge --ask --quiet-build=y --color=y "$@" | tee >(if waitforstring.py "Would you like to"; then gen.sh q i "User Interaction Needed!" >> /dev/null; fi; cat >> /dev/null);
+exit $((${PIPESTATUS[0]} | ${PIPESTATUS[1]}))
