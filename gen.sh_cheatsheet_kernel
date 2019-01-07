@@ -13,6 +13,7 @@ cp /usr/src/linux/.config "$HOME/code/kernel/kernel-config-$(sed -e 's/#define U
 cd /usr/src/linux && sudo.sh make modules_prepare
 gmerge @module-rebuild
 sudo.sh eclean-kernel -n 3 -A -d
-exit 1
+gen.sh {1..14}
+gen.sh {1..15} 8 10 11
 gen.sh q c main
 gen.sh q c extended
