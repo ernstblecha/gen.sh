@@ -3,7 +3,7 @@ sudo.sh eselect kernel set 1
 sudo.sh cp "$HOME/code/kernel/kernel-config-$(uname -r)" /usr/src/linux/.config
 cd /usr/src/linux && sudo.sh make syncconfig 
 cd /usr/src/linux && sudo.sh make menuconfig 
-cd /usr/src/linux && sudo.sh make -j5
+cd /usr/src/linux && sudo.sh mispipe "make -j5" "pv -s \"$(stat -c %s /usr/src/makelog.linux)\" -p -t -e" > /usr/src/makelog.linux.cur
 cd /usr/src/linux && sudo.sh make modules_install
 sudo.sh mount /boot
 cd /usr/src/linux && sudo.sh make install
@@ -13,7 +13,8 @@ cp /usr/src/linux/.config "$HOME/code/kernel/kernel-config-$(sed -e 's/#define U
 cd /usr/src/linux && sudo.sh make modules_prepare
 gmerge @module-rebuild
 sudo.sh eclean-kernel -n 3 -A -d
-gen.sh {1..14}
-gen.sh {1..15} 8 10 11
+cp /usr/src/makelog.linux.cur /usr/src/makelog.linux
+gen.sh {1..14} 16
+gen.sh {1..15} 8 10 11 16
 gen.sh q c main
 gen.sh q c extended
