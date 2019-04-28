@@ -103,7 +103,7 @@ if hasattr(psutil, 'virtual_memory'):
     mem = psutil.virtual_memory()
 else:
     mem = psutil.phymem_usage()
-swap=psutil.swap_memory()
+swap = psutil.swap_memory()
 print("% 5.1f MB (% 5.1f%%; %5.1f%%S)\\t [%s]\\t%s" % ((mem.used/1024/1024), mem.percent, swap.percent, ",".join("% 5.1f" % v for v in psutil.cpu_percent(interval=0.1, percpu=True)), (time.strftime("%d/%m/%Y %H:%M:%S"))))  # noqa: E501
 SYSTEMINFO.PY
 }
@@ -162,7 +162,7 @@ data = portage.mtimedb.get("resume", {}).get("mergelist")
 
 counter = 1
 if data is not None:
-    genlop=subprocess.getoutput("genlop -unc")
+    genlop = subprocess.getoutput("genlop -unc")
     print(genlop)
     genlopsize = genlop.count('\\n') + 2 + 2
     print('\\nItems in resume list:')
