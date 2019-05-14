@@ -154,7 +154,7 @@ function printEta {
   elif (( r == 0 )); then
     echo "unknown";
   else
-    echo $(formatTime $t);
+    formatTime $t;
   fi;
 }
 
