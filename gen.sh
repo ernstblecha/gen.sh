@@ -117,20 +117,9 @@ function eta {
   ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$1-[0-9]" | pcregrep -M ">>>.+\\n.+ :::" | tail -n $((n*2)) | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
-function printEta {
-  local r;
-  local t;
-  local name;
-  # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
-  # shellcheck disable=SC2001
-  name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
-  r=$(($(eta "$name")+29))
-  t=$((r/60))
-  if (( r < 0 )); then
-    echo "currently merging";
-  elif (( r == 0 )); then
-    echo "unknown";
-  elif (( t <= 1 )); then
+function formatTime {
+  local t=$1;
+  if (( t <= 1 )); then
     echo "<= 1 minute";
   elif (( t < 2 )); then
     echo "1 minute";
@@ -148,6 +137,24 @@ function printEta {
     else
       echo "$((t/60)) hours, $((t%60)) minutes";
     fi;
+  fi;
+}
+
+function printEta {
+  local r;
+  local t;
+  local name;
+  # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
+  # shellcheck disable=SC2001
+  name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
+  r=$(($(eta "$name")+29))
+  t=$((r/60))
+  if (( r < 0 )); then
+    echo "currently merging";
+  elif (( r == 0 )); then
+    echo "unknown";
+  else
+    echo $(formatTime $t);
   fi;
 }
 
