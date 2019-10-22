@@ -87,6 +87,9 @@ Additional Command: read if the user wants to continue
 Additional Command: get an estimate on how long building a package will take
            #> $ME e media-gfx/gimp
 
+Additional Command: get status of merge-sandboxes
+           #> $ME f
+
 Additional Command: change the cheatsheet-symlink
            #> $ME c main
 
@@ -114,14 +117,19 @@ function eta {
 # yes, i am sure i want to pipe into echo, the grep afterwards will eat the data
 # shellcheck disable=SC2008
   local n=3
+  # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
+  # shellcheck disable=SC2001
+  local name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
   # escape input for grep -E according to https://unix.stackexchange.com/questions/20804/in-a-regular-expression-which-characters-need-escaping
-  local name="$(printf '%s' "$1" | sed 's/[.[\*^$()+?{|]/\\&/g')"
+  name="$(printf '%s' "$name" | sed 's/[.[\*^$()+?{|]/\\&/g')"
   ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$name-[0-9]" | pcregrep -M ">>>.+\\n.+ :::" | tail -n $((n*2)) | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
 function formatTime {
   local t=$1;
-  if (( t <= 1 )); then
+  if (( t < 0 )); then
+    echo "..."
+  elif (( t <= 1 )); then
     echo "<= 1 minute";
   elif (( t < 2 )); then
     echo "1 minute";
@@ -145,19 +153,50 @@ function formatTime {
 function printEta {
   local r;
   local t;
-  local name;
-  # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
-  # shellcheck disable=SC2001
-  name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
-  r=$(($(eta "$name")+29))
+  r=$(($(eta "$1")+29))
   t=$((r/60))
   if (( r < 0 )); then
-    echo "currently merging";
+    echo "ERROR";
   elif (( r == 0 )); then
     echo "unknown";
   else
     formatTime $t;
   fi;
+}
+
+function getMergeRuntime {
+#you ask why? because genlop is way too slow...
+  echo $(($(date +%s) - $(grep $1 /var/log/emerge.log | grep 'Compiling/Merging' | tail -1 | sed 's/\([0-9]*\):.*/\1/g')))
+}
+
+function printMergeRuntime {
+  local t;
+  t=$(($(getMergeRuntime "$1")/60))
+  formatTime $t;
+}
+
+function printTimeLeft {
+  local r;
+  local t;
+  local m;
+  r=$(($(eta "$1")+29))
+  m=$(getMergeRuntime "$1")
+  t=$(((r-m)/60))
+  if (( r < 0 )); then
+    echo "ERROR";
+  elif (( r == 0 )); then
+    echo "unknown";
+  else
+    formatTime $t;
+  fi;
+}
+
+function getSandboxes {
+#you ask why? because genlop is way too slow...
+#this takes about 1/10 of the time of genlop...
+  for i in $(ps -C sandbox -o args= | sed 's/^\[\(.*\)\].*/\1/g'); do
+    echo "$i: running for $(printMergeRuntime $i), ETA: $(printTimeLeft $i)"
+  done
 }
 
 function resumelist {
@@ -171,9 +210,9 @@ data = portage.mtimedb.get("resume", {}).get("mergelist")
 
 counter = 1
 if data is not None:
-    genlop = subprocess.getoutput("genlop -unc")
-    print(genlop)
-    genlopsize = genlop.count('\\n') + 2 + 2
+    sandboxes = subprocess.getoutput("${SELF} q f")
+    print(sandboxes)
+    sandboxessize = sandboxes.count('\\n') + 2 + 2
     print('\\nItems in resume list:')
     for item in data:
         eta = subprocess.getoutput("${SELF} q e %s" % item[2])
@@ -184,7 +223,7 @@ if data is not None:
         print('% 5d.) %s %s%s' % (counter, buf, ' '*(size.columns - 25 - 8 - len(buf)), eta))  # noqa: E501
         counter += 1
         if not "LINES_UNLIMITED" in os.environ:
-            if counter + genlopsize > size.lines:
+            if counter + sandboxessize > size.lines:
                 break
 else:
     print('No items in resume list, showing cheatsheet')
@@ -230,9 +269,6 @@ if ! hash python3 2>/dev/null; then
 fi
 if ! hash tmux 2>/dev/null; then
   info "tmux not available!"; exit 1
-fi
-if ! hash genlop 2>/dev/null; then
-  info "genlop not available!"; exit 1
 fi
 if ! hash grep 2>/dev/null; then
   info "grep not available!"; exit 1
@@ -325,6 +361,9 @@ if (( "$#" )); then
       info "executing command $1: estimate build time for $2"
       printEta "$2"
       shift
+    elif [ "$1" == "f" ]; then
+      info "executing command $1: show status of sandboxes"
+      getSandboxes
     elif [ "$1" == "c" ]; then
       info "executing command $1: change cheatsheet to $2"
       if [ "$2" != "" ] &&  [ -e "${SELF}_cheatsheet_$2" ]; then
