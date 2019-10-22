@@ -117,11 +117,12 @@ function eta {
 # yes, i am sure i want to pipe into echo, the grep afterwards will eat the data
 # shellcheck disable=SC2008
   local n=3
+  local name
   # i currently have no idea how to do this in shell (remove the gentoo-version-number from a package atom)...
   # shellcheck disable=SC2001
-  local name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
+  name=$(echo "$1" | sed -e 's/^\(.*\)-[0-9]\{1,\}.*$/\1/')
   # escape input for grep -E according to https://unix.stackexchange.com/questions/20804/in-a-regular-expression-which-characters-need-escaping
-  name="$(printf '%s' "$name" | sed 's/[.[\*^$()+?{|]/\\&/g')"
+  name=$(printf '%s' "$name" | sed "s/[.[\*^$()+?{|]/\\&/g")
   ( (grep -e ">>> emerge (" -e "::: completed emerge (" /var/log/emerge.log | grep -E "$name-[0-9]" | pcregrep -M ">>>.+\\n.+ :::" | tail -n $((n*2)) | tee >(echo "start=$(grep ">>>" | grep -Eo "^[0-9]+" | paste -s -d '+' - - | bc)-0;") >(echo "stop=$(grep ":::" | grep -Eo "^[0-9]+" | paste -s -d "+" - - | bc)-0;") >(grep ">>>" | echo "startcount=$(wc -l)-0;";) >(grep ":::" | echo "stopcount=$(wc -l)-0";) > /dev/null;) | cat -; echo "count=startcount+stopcount"; echo "if(stopcount < startcount) -30 else { if(count == 0) -29 else 2*(stop-start)/count }") | bc 
 }
 
@@ -166,7 +167,7 @@ function printEta {
 
 function getMergeRuntime {
 #you ask why? because genlop is way too slow...
-  echo $(($(date +%s) - $(grep $1 /var/log/emerge.log | grep 'Compiling/Merging' | tail -1 | sed 's/\([0-9]*\):.*/\1/g')))
+  echo $(($(date +%s) - $(grep "$1" /var/log/emerge.log | grep 'Compiling/Merging' | tail -1 | sed 's/\([0-9]*\):.*/\1/g')))
 }
 
 function printMergeRuntime {
@@ -195,7 +196,7 @@ function getSandboxes {
 #you ask why? because genlop is way too slow...
 #this takes about 1/10 of the time of genlop...
   for i in $(ps -C sandbox -o args= | sed 's/^\[\(.*\)\].*/\1/g'); do
-    echo "$i: running for $(printMergeRuntime $i), ETA: $(printTimeLeft $i)"
+    echo "$i: running for $(printMergeRuntime "$i"), ETA: $(printTimeLeft "$i")"
   done
 }
 
