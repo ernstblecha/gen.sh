@@ -1,4 +1,4 @@
-gen.sh q {2..13}; exit 0
+gen.sh q {2..14}; exit 0
 if (( $(date +%s --date='today 0:0')-$(stat -c %Y /var/cache/eix/portage.eix) <= 0 )); then gen.sh q i "Last Sync was today!" "($(stat -c %y /var/cache/eix/portage.eix))"; exit 1; fi
 sudo.sh -v
 sudo.sh eix-sync
@@ -10,6 +10,7 @@ sudo.sh revdep-rebuild -v -- --ask
 glsa-check -t all
 if (( $(eselect news list | grep " N " | wc -l) )); then gen.sh i "User Interaction needed: news to be read!"; eselect news read | LESS='' less; fi
 eix-test-obsolete.sh
+if (( $(eselect kernel list | grep "*" | wc -l) == 0 )); then gen.sh c kernel 1; else echo "no new kernel to be built"; fi; exit 0
 gen.sh q i "all done"
 exit 1
 gen.sh q c kernel
