@@ -214,7 +214,7 @@ if data is not None:
     sandboxes = subprocess.getoutput("${SELF} q f")
     print(sandboxes)
     sandboxessize = sandboxes.count('\\n') + 2 + 2
-    print('\\nItems in resume list:')
+    print('\\n%d items in resume list:' % (len(data)))
     for item in data:
         eta = subprocess.getoutput("${SELF} q e %s" % item[2])
         buf = item[2]
